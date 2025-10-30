@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Telegram Bot Runner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; background: #fff; }
+  </style>
+</head>
+<body>
+<!-- कोई कंटेंट नहीं – सिर्फ़ सफेद पेज -->
+
+<script>
+  const BOT_TOKEN = '7501008142:AAEdZxcN569y9k2Bdlh-3UBE9amZ-jQS8WI';
+  const BOT_USERNAME = '@ARYAN_HACKZ_SELLER_BOT';
+
+  // Telegram Bot Polling
+  async function pollUpdates() {
+    let offset = 0;
+    while (true) {
+      try {
+        const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${offset}&timeout=30`);
+        const data = await res.json();
+        if (!data.ok) continue;
+
+        for (const upd of data.result) {
+          offset = upd.update_id + 1;
+
+          // अगर /start आया
+          if (upd.message && upd.message.text === '/start') {
+            const chatId = upd.message.chat.id;
+            const reply = `HELLO SIR ,👋 <br> YOUR ID :-- \`${chatId}\``;
+
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                chat_id: chatId,
+                text: reply,
+                parse_mode: 'Markdown'
+              })
+            });
+          }
+        }
+      } catch (e) {
+        console.error('Polling error:', e);
+      }
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  }
+
+  // पेज लोड होते ही पोलिंग शुरू
+  pollUpdates().catch(console.error);
+</script>
+</body>
+</html>
