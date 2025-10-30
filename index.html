@@ -28,16 +28,16 @@
           if (upd.message && upd.message.text === '/start') {
             const chatId = upd.message.chat.id;
             
-            // Exact format with \n (line break)
-            const reply = `HELLO SIR ,👋\n🎯YOUR ID :-- ${chatId}`;
+            // Monospace ID with backticks + \n for line break
+            const reply = `HELLO SIR ,👋\n🎯YOUR ID :-- \`${chatId}\``;
 
             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
               body: JSON.stringify({
                 chat_id: chatId,
-                text: reply
-                // parse_mode remove kiya — simple text best hai!
+                text: reply,
+                parse_mode: 'MarkdownV2'  // Must for backticks
               })
             });
           }
