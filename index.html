@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Telegram Chat ID Bot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:Arial,sans-serif;background:#f0f2f5;padding:20px;}
+    .container{max-width:420px;margin:auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+    h1{font-size:1.4rem;margin-bottom:10px;}
+    .btn{display:block;width:100%;padding:12px;background:#0088cc;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;margin-top:15px;}
+    .btn:hover{background:#006ba6;}
+    pre{background:#eee;padding:10px;border-radius:6px;overflow:auto;word-break:break-all;}
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Telegram Chat ID Bot</h1>
+  <p>1. नीचे <b>Start Bot</b> बटन पर क्लिक करें → Telegram खुल जाएगा।<br>
+     2. बॉट को <code>/start</code> भेजें।<br>
+     3. बॉट आपकी Chat ID भेज देगा – <code>मोनोस्पेस</code> में, कॉपी करने के लिए क्लिक करें।</p>
+
+  <button class="btn" onclick="openBot()">Start Bot</button>
+
+  <h2 style="margin-top:25px;">आपकी Chat ID (बॉट से आएगी)</h2>
+  <pre id="chatId">यहाँ दिखेगी…</pre>
+</div>
+
+<script>
+  const BOT_TOKEN = '7501008142:AAEdZxcN569y9k2Bdlh-3UBE9amZ-jQS8WI';
+  const BOT_USERNAME = '@ARYAN_HACKZ_SELLER_BOT';   // @YourBotName  (बदलें)
+
+  function openBot() {
+    const url = `https://t.me/${BOT_USERNAME}?start=web`;
+    window.open(url, '_blank');
+  }
+
+  // Webhook से अपडेट्स लेने के लिए polling (सिर्फ डेमो)
+  async function pollUpdates() {
+    let offset = 0;
+    while (true) {
+      const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${offset}&timeout=30`);
+      const data = await res.json();
+      if (!data.ok) { console.error(data); break; }
+
+      for (const upd of data.result) {
+        offset = upd.update_id + 1;
+        if (upd.message && upd.message.text === '/start') {
+          const chatId = upd.message.chat.id;
+          const reply = `HELLO SIR ,👋 🎯YOUR ID :-- \`${chatId}\``;
+          await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({chat_id: chatId, text: reply, parse_mode: 'Markdown'})
+          });
+          document.getElementById('chatId').textContent = reply;
+        }
+      }
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  }
+
+  // पेज लोड होने पर polling शुरू
+  pollUpdates().catch(console.error);
+</script>
+</body>
+</html>
