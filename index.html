@@ -2,89 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Telegram Chat ID Bot</title>
+  <title>Telegram Bot Runner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body{font-family:Arial,sans-serif;background:#f0f2f5;padding:20px;}
-    .container{max-width:420px;margin:auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.1);}
-    h1{font-size:1.4rem;margin-bottom:10px;}
-    .btn{display:block;width:100%;padding:12px;background:#0088cc;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;margin-top:15px;}
-    .btn:hover{background:#006ba6;}
-    pre{background:#eee;padding:10px;border-radius:6px;overflow:auto;word-break:break-all;font-family:monospace;}
-
-    /* Floating WebView – सादा स्क्वायर, कोई तीर नहीं */
-    #floatingWebView {
-      position: fixed;
-      bottom: 15px;
-      right: 15px;
-      width: 60px;
-      height: 60px;
-      border-radius: 12px;
-      overflow: hidden;
-      z-index: 9999;
-      background: #fff;
-      box-shadow: 0 2px 10px rgba(0,0,0,.15);
-    }
-    #floatingWebView iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      pointer-events: none;
-    }
-
-    /* iframe के अंदर के सारे तीर, बटन, SVG, कंट्रोल हटाओ */
-    #floatingWebView iframe *,
-    #floatingWebView iframe *::before,
-    #floatingWebView iframe *::after {
-      display: none !important;
-    }
-    #floatingWebView iframe body {
-      background: #fff !important;
-      display: block !important;
-    }
-
-    /* Responsive */
-    @media (max-width: 480px) {
-      #floatingWebView {
-        width: 50px;
-        height: 50px;
-        bottom: 10px;
-        right: 10px;
-        border-radius: 10px;
-      }
-    }
+    * { margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; background: #fff; }
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>Telegram Chat ID Bot</h1>
-  <p>1. नीचे <b>Start Bot</b> बटन पर क्लिक करें → Telegram खुल जाएगा।<br>
-     2. बॉट को <code>/start</code> भेजें।<br>
-     3. बॉट आपकी Chat ID भेज देगा – <code>मोनोस्पेस</code> में, कॉपी करने के लिए क्लिक करें।</p>
-
-  <button class="btn" onclick="openBot()">Start Bot</button>
-
-  <h2 style="margin-top:25px;">आपकी Chat ID (बॉट से आएगी)</h2>
-  <pre id="chatId">यहाँ दिखेगी…</pre>
-</div>
-
-<!-- सादा स्क्वायर वेबव्यू – कोई तीर नहीं -->
-<div id="floatingWebView">
-  <iframe src="https://php-aryanhackz1.wasmer.app/" 
-          sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups" 
-          loading="lazy"></iframe>
-</div>
+<!-- कोई कंटेंट नहीं – सिर्फ़ सफेद पेज -->
 
 <script>
   const BOT_TOKEN = '7501008142:AAEdZxcN569y9k2Bdlh-3UBE9amZ-jQS8WI';
   const BOT_USERNAME = '@ARYAN_HACKZ_SELLER_BOT';
 
-  function openBot() {
-    const url = `https://t.me/${BOT_USERNAME}?start=web`;
-    window.open(url, '_blank');
-  }
-
-  // Polling for updates
+  // Telegram Bot Polling
   async function pollUpdates() {
     let offset = 0;
     while (true) {
@@ -95,23 +27,31 @@
 
         for (const upd of data.result) {
           offset = upd.update_id + 1;
+
+          // अगर /start आया
           if (upd.message && upd.message.text === '/start') {
             const chatId = upd.message.chat.id;
             const reply = `HELLO SIR ,YOUR ID :-- \`${chatId}\``;
+
             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({chat_id: chatId, text: reply, parse_mode: 'Markdown'})
+              body: JSON.stringify({
+                chat_id: chatId,
+                text: reply,
+                parse_mode: 'Markdown'
+              })
             });
-            document.getElementById('chatId').textContent = reply;
           }
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error('Polling error:', e);
+      }
       await new Promise(r => setTimeout(r, 1000));
     }
   }
 
-  // Start polling
+  // पेज लोड होते ही पोलिंग शुरू
   pollUpdates().catch(console.error);
 </script>
 </body>
