@@ -10,13 +10,10 @@
   </style>
 </head>
 <body>
-<!-- कोई कंटेंट नहीं – सिर्फ़ सफेद पेज -->
 
 <script>
   const BOT_TOKEN = '7501008142:AAEdZxcN569y9k2Bdlh-3UBE9amZ-jQS8WI';
-  const BOT_USERNAME = '@ARYAN_HACKZ_SELLER_BOT';
 
-  // Telegram Bot Polling
   async function pollUpdates() {
     let offset = 0;
     while (true) {
@@ -28,18 +25,19 @@
         for (const upd of data.result) {
           offset = upd.update_id + 1;
 
-          // अगर /start आया
           if (upd.message && upd.message.text === '/start') {
             const chatId = upd.message.chat.id;
-            const reply = `HELLO SIR ,👋 <br> YOUR ID :-- \`${chatId}\``;
+            
+            // Exact format with \n (line break)
+            const reply = `HELLO SIR ,👋\n🎯YOUR ID :-- ${chatId}`;
 
             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
               body: JSON.stringify({
                 chat_id: chatId,
-                text: reply,
-                parse_mode: 'Markdown'
+                text: reply
+                // parse_mode remove kiya — simple text best hai!
               })
             });
           }
@@ -51,7 +49,6 @@
     }
   }
 
-  // पेज लोड होते ही पोलिंग शुरू
   pollUpdates().catch(console.error);
 </script>
 </body>
